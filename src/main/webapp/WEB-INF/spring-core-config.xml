@@ -1,0 +1,42 @@
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns="http://www.springframework.org/schema/beans"
+       xmlns:security="http://www.springframework.org/schema/security"
+       xmlns:oauth="http://www.springframework.org/schema/security/oauth"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="
+            http://www.springframework.org/schema/beans
+            http://www.springframework.org/schema/beans/spring-beans.xsd
+            http://www.springframework.org/schema/security
+            http://www.springframework.org/schema/security/spring-security-3.2.xsd
+            http://www.springframework.org/schema/security/oauth
+            http://www.springframework.org/schema/security/spring-security-oauth.xsd
+            http://www.springframework.org/schema/context
+            http://www.springframework.org/schema/context/spring-context.xsd">
+
+  <context:property-placeholder location="classpath:trademe.properties"/>
+
+  <security:http auto-config='true' disable-url-rewriting="true"/>
+
+  <security:authentication-manager/>
+
+  <oauth:resource-details-service id="resourceDetails">
+    <oauth:resource id="trademe"
+                    key="${oauth.consumerKey}"
+                    secret="${oauth.consumerSecret}"
+                    request-token-url="https://secure.tmsandbox.co.nz/Oauth/RequestToken"
+                    user-authorization-url="https://secure.tmsandbox.co.nz/Oauth/Authorize"
+                    access-token-url="https://secure.tmsandbox.co.nz/Oauth/AccessToken">
+      <oauth:additionalRequestHeader name="Content-Length" value="0"/>
+    </oauth:resource>
+  </oauth:resource-details-service>
+
+  <oauth:consumer resource-details-service-ref="resourceDetails">
+    <oauth:url pattern="/watchlist" resources="trademe"/>
+  </oauth:consumer>
+
+  <bean class="org.springframework.security.oauth.consumer.client.OAuthRestTemplate">
+    <constructor-arg ref="trademe"/>
+  </bean>
+
+  <context:component-scan base-package="com.boye.trademe.service.impl"/>
+</beans>
